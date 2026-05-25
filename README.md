@@ -1,4 +1,4 @@
-# RentTracker
+# Rent Tracker 
 
 A full-stack property rent management web application built with **Next.js 16**, **Supabase**, and **Tailwind CSS v4**.
 
