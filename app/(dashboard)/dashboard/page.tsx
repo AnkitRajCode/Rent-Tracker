@@ -1,4 +1,5 @@
 ﻿import { createClient } from "@/lib/supabase/server";
+import Link from "next/link";
 import {
   Landmark,
   Home,
@@ -65,11 +66,11 @@ export default async function DashboardPage() {
   });
 
   const stats = [
-    { label: "Properties", value: totalProperties ?? 0, icon: Landmark, color: "#F7931A", glow: "rgba(247,147,26,0.4)" },
-    { label: "Total Houses", value: totalHouses ?? 0, icon: Home, color: "#FFD600", glow: "rgba(255,214,0,0.3)" },
-    { label: "Occupied", value: occupiedHouses ?? 0, icon: CheckCircle2, color: "#22c55e", glow: "rgba(34,197,94,0.3)" },
-    { label: "Vacant", value: vacantHouses ?? 0, icon: AlertCircle, color: "#94A3B8", glow: "rgba(148,163,184,0.2)" },
-    { label: "Tenants", value: totalTenants ?? 0, icon: Users, color: "#F7931A", glow: "rgba(247,147,26,0.4)" },
+    { label: "Properties", value: totalProperties ?? 0, icon: Landmark, color: "#F7931A", glow: "rgba(247,147,26,0.4)", href: "/dashboard/properties" },
+    { label: "Total Houses", value: totalHouses ?? 0, icon: Home, color: "#FFD600", glow: "rgba(255,214,0,0.3)", href: "/dashboard/properties" },
+    { label: "Occupied", value: occupiedHouses ?? 0, icon: CheckCircle2, color: "#22c55e", glow: "rgba(34,197,94,0.3)", href: "/dashboard/tenants" },
+    { label: "Vacant", value: vacantHouses ?? 0, icon: AlertCircle, color: "#94A3B8", glow: "rgba(148,163,184,0.2)", href: "/dashboard/properties" },
+    { label: "Tenants", value: totalTenants ?? 0, icon: Users, color: "#F7931A", glow: "rgba(247,147,26,0.4)", href: "/dashboard/tenants" },
   ];
 
   const monthName = now.toLocaleString("default", { month: "long" });
@@ -86,10 +87,11 @@ export default async function DashboardPage() {
 
       {/* Stats grid */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
-        {stats.map(({ label, value, icon: Icon, color }) => (
-          <div
+        {stats.map(({ label, value, icon: Icon, color, href }) => (
+          <Link
             key={label}
-            className="bg-[#0F1115] border border-white/10 rounded-2xl p-5 hover:-translate-y-1 hover:border-[#F7931A]/30 transition-all duration-300"
+            href={href}
+            className="bg-[#0F1115] border border-white/10 rounded-2xl p-5 hover:-translate-y-1 hover:border-[#F7931A]/30 transition-all duration-300 cursor-pointer"
           >
             <div
               className="w-9 h-9 rounded-lg flex items-center justify-center mb-3"
@@ -99,7 +101,7 @@ export default async function DashboardPage() {
             </div>
             <p className="font-heading text-2xl font-bold" style={{ color }}>{value}</p>
             <p className="text-[#94A3B8] text-xs font-mono tracking-wider uppercase mt-0.5">{label}</p>
-          </div>
+          </Link>
         ))}
       </div>
 
@@ -146,7 +148,7 @@ export default async function DashboardPage() {
           {monthName} {currentYear} - Rent Summary
         </h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div className="bg-[#0F1115] border border-white/10 rounded-2xl p-6">
+          <Link href="/dashboard/rent" className="bg-[#0F1115] border border-white/10 rounded-2xl p-6 hover:border-[#F7931A]/30 transition-all">
             <div className="flex items-center gap-2 mb-3">
               <TrendingUp className="w-4 h-4 text-[#94A3B8]" />
               <span className="text-[#94A3B8] text-xs font-mono tracking-wider uppercase">Expected</span>
@@ -155,9 +157,9 @@ export default async function DashboardPage() {
               ₹{totalExpected.toLocaleString("en-IN")}
             </p>
             <p className="text-[#94A3B8] text-xs mt-1">{thisMonthRent?.length ?? 0} records</p>
-          </div>
+          </Link>
 
-          <div className="bg-[#0F1115] border border-[#22c55e]/20 rounded-2xl p-6 shadow-[0_0_20px_-5px_rgba(34,197,94,0.1)]">
+          <Link href="/dashboard/rent" className="bg-[#0F1115] border border-[#22c55e]/20 rounded-2xl p-6 shadow-[0_0_20px_-5px_rgba(34,197,94,0.1)] hover:border-[#22c55e]/40 transition-all">
             <div className="flex items-center gap-2 mb-3">
               <CheckCircle2 className="w-4 h-4 text-[#22c55e]" />
               <span className="text-[#94A3B8] text-xs font-mono tracking-wider uppercase">Collected</span>
@@ -166,9 +168,9 @@ export default async function DashboardPage() {
               ₹{totalCollected.toLocaleString("en-IN")}
             </p>
             <p className="text-[#94A3B8] text-xs mt-1">{paidCount} paid</p>
-          </div>
+          </Link>
 
-          <div className="bg-[#0F1115] border border-[#F7931A]/20 rounded-2xl p-6 shadow-[0_0_20px_-5px_rgba(247,147,26,0.1)]">
+          <Link href="/dashboard/rent" className="bg-[#0F1115] border border-[#F7931A]/20 rounded-2xl p-6 shadow-[0_0_20px_-5px_rgba(247,147,26,0.1)] hover:border-[#F7931A]/40 transition-all">
             <div className="flex items-center gap-2 mb-3">
               <IndianRupee className="w-4 h-4 text-[#F7931A]" />
               <span className="text-[#94A3B8] text-xs font-mono tracking-wider uppercase">Pending</span>
@@ -177,7 +179,7 @@ export default async function DashboardPage() {
               ₹{totalPending.toLocaleString("en-IN")}
             </p>
             <p className="text-[#94A3B8] text-xs mt-1">{pendingCount} pending</p>
-          </div>
+          </Link>
         </div>
       </div>
 

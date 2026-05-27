@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { IndianRupee, Plus, CheckCircle2, Clock, AlertCircle } from "lucide-react";
+import { IndianRupee, Plus, CheckCircle2, Clock, AlertCircle, Receipt } from "lucide-react";
 import ExportCSVButton from "@/components/ExportCSVButton";
 
 const MONTHS = [
@@ -98,7 +98,7 @@ export default async function RentPage({
           defaultValue={year}
           className="bg-[#0F1115] border border-white/10 rounded-xl h-10 px-3 text-white text-sm font-mono outline-none focus:border-[#F7931A] transition-all cursor-pointer"
         >
-          {[year - 1, year, year + 1].map((y) => (
+          {Array.from({ length: 8 }, (_, i) => year - 5 + i).map((y) => (
             <option key={y} value={y}>{y}</option>
           ))}
         </select>
@@ -185,14 +185,23 @@ export default async function RentPage({
                 </div>
 
                 {tenant && (
-                  <div className="pt-3 border-t border-white/5">
+                  <div className="pt-3 border-t border-white/5 flex gap-2">
                     <Link
                       href={`/dashboard/rent/record?house_id=${house.id}&tenant_id=${tenant.id}&month=${month}&year=${year}&amount_due=${house.rent_amount}`}
-                      className="w-full flex items-center justify-center gap-1.5 h-9 rounded-xl text-xs font-mono font-semibold tracking-wider uppercase transition-all bg-gradient-to-r from-[#EA580C] to-[#F7931A] text-white shadow-[0_0_15px_-5px_rgba(234,88,12,0.5)] hover:scale-[1.02]"
+                      className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-xl text-xs font-mono font-semibold tracking-wider uppercase transition-all bg-gradient-to-r from-[#EA580C] to-[#F7931A] text-white shadow-[0_0_15px_-5px_rgba(234,88,12,0.5)] hover:scale-[1.02]"
                     >
                       <Plus className="w-3.5 h-3.5" />
-                      {record ? "Update Payment" : "Record Payment"}
+                      {record ? "Update" : "Record"}
                     </Link>
+                    {record && (
+                      <Link
+                        href={`/dashboard/rent/receipt?house_id=${house.id}&month=${month}&year=${year}`}
+                        className="flex items-center justify-center gap-1 h-9 px-3 rounded-xl text-xs font-mono text-[#94A3B8] hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-all"
+                        title="View Receipt"
+                      >
+                        <Receipt className="w-3.5 h-3.5" />
+                      </Link>
+                    )}
                   </div>
                 )}
               </div>

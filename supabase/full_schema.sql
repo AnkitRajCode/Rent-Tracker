@@ -214,6 +214,8 @@ create table if not exists rent_records (
   month         integer not null check (month between 1 and 12),
   year          integer not null,
   amount_due    numeric(10,2) not null,
+  electricity_bill numeric(10,2) default 0,
+  maintenance   numeric(10,2) default 0,
   amount_paid   numeric(10,2) default 0,
   status        text default 'pending'
                   check (status in ('paid', 'pending', 'partial')),
@@ -338,3 +340,10 @@ insert into public.profiles (id, email)
 select id, email
 from auth.users
 on conflict (id) do nothing;
+
+-- ─────────────────────────────────────────
+-- MIGRATION: Add electricity_bill & maintenance to rent_records
+-- Run this on existing databases that already have rent_records
+-- ─────────────────────────────────────────
+alter table rent_records add column if not exists electricity_bill numeric(10,2) default 0;
+alter table rent_records add column if not exists maintenance numeric(10,2) default 0;

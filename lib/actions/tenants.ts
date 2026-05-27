@@ -120,6 +120,66 @@ export async function vacateTenant(tenantId: string, houseId: string) {
   redirect("/dashboard/tenants");
 }
 
+export async function updateTenant(input: {
+  id: string;
+  moveInDate: string;
+  rentDueDay: number;
+  agreementUrl: string;
+  members: Array<{
+    id: string;
+    name: string;
+    phone: string;
+    email: string;
+    aadhaarNumber: string;
+  }>;
+}) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+
+  const { error: tenantError } = await supabase
+    .from("tenants")
+    .update({
+      move_in_date: input.moveInDate,
+      rent_due_day: input.rentDueDay,
+      agreement_url: input.agreementUrl || null,
+    })
+    .eq("id", input.id)
+    .eq("owner_id", user.id);
+
+  if (tenantError) throw new Error(tenantError.message);
+
+  for (const member of input.members) {
+    const { error: memberError } = await supabase
+      .from("tenant_members")
+      .update({
+        name: member.name,
+        phone: member.phone || null,
+        email: member.email || null,
+        aadhaar_number: member.aadhaarNumber || null,
+      })
+      .eq("id", member.id)
+      .eq("owner_id", user.id);
+
+    if (memberError) throw new Error(memberError.message);
+  }
+
+  // Keep tenants.name/phone in sync with primary member
+  const primaryMember = input.members[0];
+  if (primaryMember) {
+    await supabase
+      .from("tenants")
+      .update({ name: primaryMember.name, phone: primaryMember.phone || "" })
+      .eq("id", input.id)
+      .eq("owner_id", user.id);
+  }
+
+  revalidatePath("/dashboard/tenants");
+  redirect("/dashboard/tenants");
+}
+
 export async function updateTenantLoginAccess(
   tenantId: string,
   canLogin: boolean

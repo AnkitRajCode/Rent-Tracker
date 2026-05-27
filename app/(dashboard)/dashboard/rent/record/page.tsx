@@ -87,6 +87,37 @@ export default async function RecordPaymentPage({
           />
         </div>
 
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-mono tracking-wider uppercase text-[#94A3B8] mb-1.5">
+              Electricity Bill (₹)
+            </label>
+            <input
+              type="number"
+              name="electricity_bill"
+              defaultValue={(existing as Record<string, unknown>)?.electricity_bill as number ?? 0}
+              min="0"
+              step="10"
+              placeholder="0"
+              className="w-full bg-black/50 border-b-2 border-white/20 focus:border-[#F7931A] transition-all rounded-t-lg h-11 px-4 text-white text-sm outline-none placeholder:text-white/30"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-mono tracking-wider uppercase text-[#94A3B8] mb-1.5">
+              Maintenance (₹)
+            </label>
+            <input
+              type="number"
+              name="maintenance"
+              defaultValue={(existing as Record<string, unknown>)?.maintenance as number ?? 0}
+              min="0"
+              step="10"
+              placeholder="0"
+              className="w-full bg-black/50 border-b-2 border-white/20 focus:border-[#F7931A] transition-all rounded-t-lg h-11 px-4 text-white text-sm outline-none placeholder:text-white/30"
+            />
+          </div>
+        </div>
+
         <div>
           <label className="block text-xs font-mono tracking-wider uppercase text-[#94A3B8] mb-1.5">
             Amount Paid (₹)

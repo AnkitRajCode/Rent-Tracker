@@ -13,22 +13,28 @@ export async function upsertRentRecord(formData: FormData) {
 
   const houseId = formData.get("house_id") as string;
   const tenantId = formData.get("tenant_id") as string;
-  const month = parseInt(formData.get("month") as string);
-  const year = parseInt(formData.get("year") as string);
-  const amountDue = parseFloat(formData.get("amount_due") as string);
-  const amountPaid = parseFloat(formData.get("amount_paid") as string) || 0;
+  const month = Number.parseInt(formData.get("month") as string);
+  const year = Number.parseInt(formData.get("year") as string);
+  const amountDue = Number.parseFloat(formData.get("amount_due") as string);
+  const electricityBill = Number.parseFloat(formData.get("electricity_bill") as string) || 0;
+  const maintenance = Number.parseFloat(formData.get("maintenance") as string) || 0;
+  const amountPaid = Number.parseFloat(formData.get("amount_paid") as string) || 0;
   const paymentMode = (formData.get("payment_mode") as string) || null;
   const paidOn = (formData.get("paid_on") as string) || null;
   const notes = (formData.get("notes") as string) || null;
 
-  const status =
-    amountPaid === 0
-      ? "pending"
-      : amountPaid >= amountDue
-        ? "paid"
-        : "partial";
+  const totalDue = amountDue + electricityBill + maintenance;
+  let status: "pending" | "paid" | "partial";
+  if (amountPaid === 0) {
+    status = "pending";
+  } else if (amountPaid >= totalDue) {
+    status = "paid";
+  } else {
+    status = "partial";
+  }
 
-  const { error } = await supabase.from("rent_records").upsert(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { error } = await (supabase.from("rent_records") as any).upsert(
     {
       house_id: houseId,
       tenant_id: tenantId,
@@ -36,9 +42,11 @@ export async function upsertRentRecord(formData: FormData) {
       month,
       year,
       amount_due: amountDue,
+      electricity_bill: electricityBill,
+      maintenance,
       amount_paid: amountPaid,
       status,
-      payment_mode: paymentMode as "cash" | "upi" | "bank_transfer" | null,
+      payment_mode: paymentMode,
       paid_on: paidOn,
       notes,
     },
