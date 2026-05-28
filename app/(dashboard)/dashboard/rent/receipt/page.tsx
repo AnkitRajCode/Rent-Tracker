@@ -221,6 +221,15 @@ export default async function RentReceiptPage({
         @media print {
           body { background: white !important; }
           .print\\:hidden { display: none !important; }
+          nav, aside, footer, header { display: none !important; }
+          main { padding: 0 !important; margin: 0 !important; }
+          main > div { padding: 0 !important; }
+          body > div > div { padding-left: 0 !important; padding-top: 0 !important; }
+          #receipt { 
+            box-shadow: none !important; 
+            border: 1px solid #e5e7eb !important;
+            margin: 0 !important;
+          }
         }
       `}</style>
     </div>

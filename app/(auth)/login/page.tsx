@@ -31,7 +31,7 @@ export default function LoginPage() {
         window.location.href = "/dashboard";
       }
     } else {
-      const { error } = await supabase.auth.signUp({ email, password });
+      const { data, error } = await supabase.auth.signUp({ email, password });
       setLoading(false);
       if (error) {
         if (
@@ -45,6 +45,10 @@ export default function LoginPage() {
         } else {
           setError(error.message);
         }
+      } else if (data?.user?.identities?.length === 0) {
+        // Supabase returns a fake user with no identities when email already exists
+        setError("An account with this email already exists. Please sign in instead.");
+        setMode("signin");
       } else {
         setMessage("Account created! Check your email to confirm, then sign in.");
         setMode("signin");

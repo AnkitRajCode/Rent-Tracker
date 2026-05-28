@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createHouse } from "@/lib/actions/houses";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import SubmitButton from "@/components/SubmitButton";
 
 const HOUSE_TYPES = ["1BHK", "2BHK", "3BHK", "Studio", "Shop", "Godown", "Other"];
 
@@ -116,12 +117,7 @@ export default async function NewHousePage({
         </div>
 
         <div className="pt-2">
-          <button
-            type="submit"
-            className="w-full h-11 rounded-full bg-gradient-to-r from-[#EA580C] to-[#F7931A] text-white text-sm font-semibold uppercase tracking-wider shadow-[0_0_20px_-5px_rgba(234,88,12,0.5)] hover:scale-[1.02] transition-all"
-          >
-            Add House
-          </button>
+          <SubmitButton label="Add House" />
         </div>
       </form>
     </div>

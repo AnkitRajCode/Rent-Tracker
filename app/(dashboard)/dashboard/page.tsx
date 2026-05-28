@@ -37,6 +37,7 @@ export default async function DashboardPage() {
     { count: totalTenants },
     { data: thisMonthRent },
     { data: trendRecords },
+    { data: occupiedHousesList },
   ] = await Promise.all([
     supabase.from("properties").select("*", { count: "exact", head: true }).eq("owner_id", user!.id),
     supabase.from("houses").select("*", { count: "exact", head: true }).eq("owner_id", user!.id),
@@ -45,9 +46,10 @@ export default async function DashboardPage() {
     supabase.from("tenants").select("*", { count: "exact", head: true }).eq("owner_id", user!.id),
     supabase.from("rent_records").select("amount_due, amount_paid, status").eq("owner_id", user!.id).eq("month", currentMonth).eq("year", currentYear),
     supabase.from("rent_records").select("month, year, amount_due, amount_paid").eq("owner_id", user!.id).gte("year", last6[0].year).order("year").order("month"),
+    supabase.from("houses").select("rent_amount").eq("owner_id", user!.id).eq("status", "occupied"),
   ]);
 
-  const totalExpected = thisMonthRent?.reduce((s, r) => s + r.amount_due, 0) ?? 0;
+  const totalExpected = occupiedHousesList?.reduce((s, h) => s + h.rent_amount, 0) ?? 0;
   const totalCollected = thisMonthRent?.reduce((s, r) => s + r.amount_paid, 0) ?? 0;
   const totalPending = totalExpected - totalCollected;
   const paidCount = thisMonthRent?.filter((r) => r.status === "paid").length ?? 0;
@@ -156,7 +158,7 @@ export default async function DashboardPage() {
             <p className="font-heading text-3xl font-bold text-white">
               ₹{totalExpected.toLocaleString("en-IN")}
             </p>
-            <p className="text-[#94A3B8] text-xs mt-1">{thisMonthRent?.length ?? 0} records</p>
+            <p className="text-[#94A3B8] text-xs mt-1">{occupiedHousesList?.length ?? 0} occupied</p>
           </Link>
 
           <Link href="/dashboard/rent" className="bg-[#0F1115] border border-[#22c55e]/20 rounded-2xl p-6 shadow-[0_0_20px_-5px_rgba(34,197,94,0.1)] hover:border-[#22c55e]/40 transition-all">

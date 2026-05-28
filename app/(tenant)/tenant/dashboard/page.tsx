@@ -10,8 +10,10 @@ import {
   ShieldCheck,
   Users,
   Home,
+  Receipt,
 } from "lucide-react";
 import SignOutTenantButton from "@/components/tenant/SignOutTenantButton";
+import Link from "next/link";
 
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
@@ -83,6 +85,17 @@ export default async function TenantDashboardPage() {
 
   const refundAmount = (tenant as unknown as { deposit_refund_amount: number | null; deposit_refund_published: boolean }).deposit_refund_amount;
   const refundPublished = (tenant as unknown as { deposit_refund_amount: number | null; deposit_refund_published: boolean }).deposit_refund_published;
+
+  // Determine which receipt to show: current month if paid, otherwise most recent paid month
+  let receiptMonth: { month: number; year: number } | null = null;
+  if (currentRecord && currentRecord.status === "paid") {
+    receiptMonth = { month: now.getMonth() + 1, year: now.getFullYear() };
+  } else {
+    const lastPaid = rentRecords?.find((r) => r.status === "paid");
+    if (lastPaid) {
+      receiptMonth = { month: lastPaid.month, year: lastPaid.year };
+    }
+  }
 
   return (
     <div className="min-h-screen bg-[#030304]">
@@ -172,6 +185,26 @@ export default async function TenantDashboardPage() {
               </p>
             </div>
           </div>
+        )}
+
+        {/* Receipt download */}
+        {receiptMonth && (
+          <Link
+            href={`/tenant/dashboard/receipt?month=${receiptMonth.month}&year=${receiptMonth.year}`}
+            className="flex items-center gap-3 bg-[#0F1115] border border-[#22c55e]/20 rounded-2xl p-4 hover:border-[#22c55e]/40 transition-all group"
+          >
+            <div className="w-10 h-10 rounded-xl bg-[#22c55e]/10 border border-[#22c55e]/30 flex items-center justify-center flex-shrink-0">
+              <Receipt className="w-5 h-5 text-[#22c55e]" />
+            </div>
+            <div className="flex-1">
+              <p className="text-white text-sm font-semibold group-hover:text-[#22c55e] transition-colors">
+                Download Receipt
+              </p>
+              <p className="text-[#94A3B8] text-xs font-mono">
+                {MONTHS[receiptMonth.month - 1]} {receiptMonth.year}
+              </p>
+            </div>
+          </Link>
         )}
 
         {/* Key numbers */}

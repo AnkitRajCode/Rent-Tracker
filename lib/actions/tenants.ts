@@ -131,6 +131,13 @@ export async function updateTenant(input: {
     phone: string;
     email: string;
     aadhaarNumber: string;
+    isPrimary: boolean;
+  }>;
+  newMembers: Array<{
+    name: string;
+    phone: string;
+    email: string;
+    aadhaarNumber: string;
   }>;
 }) {
   const supabase = await createClient();
@@ -151,6 +158,7 @@ export async function updateTenant(input: {
 
   if (tenantError) throw new Error(tenantError.message);
 
+  // Update existing members
   for (const member of input.members) {
     const { error: memberError } = await supabase
       .from("tenant_members")
@@ -159,6 +167,7 @@ export async function updateTenant(input: {
         phone: member.phone || null,
         email: member.email || null,
         aadhaar_number: member.aadhaarNumber || null,
+        is_primary: member.isPrimary,
       })
       .eq("id", member.id)
       .eq("owner_id", user.id);
@@ -166,8 +175,26 @@ export async function updateTenant(input: {
     if (memberError) throw new Error(memberError.message);
   }
 
+  // Insert new members
+  if (input.newMembers.length > 0) {
+    const { error: newMemberError } = await supabase
+      .from("tenant_members")
+      .insert(
+        input.newMembers.map((m) => ({
+          tenant_id: input.id,
+          owner_id: user.id,
+          name: m.name,
+          phone: m.phone || null,
+          email: m.email || null,
+          aadhaar_number: m.aadhaarNumber || null,
+          is_primary: false,
+        }))
+      );
+    if (newMemberError) throw new Error(newMemberError.message);
+  }
+
   // Keep tenants.name/phone in sync with primary member
-  const primaryMember = input.members[0];
+  const primaryMember = input.members.find((m) => m.isPrimary) ?? input.members[0];
   if (primaryMember) {
     await supabase
       .from("tenants")
