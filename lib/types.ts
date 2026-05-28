@@ -305,6 +305,8 @@ export interface Database {
           month: number;
           year: number;
           amount_due: number;
+          electricity_bill: number;
+          maintenance: number;
           amount_paid: number;
           status: "paid" | "pending" | "partial";
           payment_mode: "cash" | "upi" | "bank_transfer" | null;
@@ -320,6 +322,8 @@ export interface Database {
           month: number;
           year: number;
           amount_due: number;
+          electricity_bill?: number;
+          maintenance?: number;
           amount_paid?: number;
           status?: "paid" | "pending" | "partial";
           payment_mode?: "cash" | "upi" | "bank_transfer" | null;
@@ -335,6 +339,8 @@ export interface Database {
           month?: number;
           year?: number;
           amount_due?: number;
+          electricity_bill?: number;
+          maintenance?: number;
           amount_paid?: number;
           status?: "paid" | "pending" | "partial";
           payment_mode?: "cash" | "upi" | "bank_transfer" | null;

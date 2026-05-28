@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { vacateTenant } from "@/lib/actions/tenants";
 import ToggleLoginAccess from "@/components/tenants/ToggleLoginAccess";
-import ExportCSVButton from "@/components/ExportCSVButton";
+import ExportButton from "@/components/ExportButton";
 
 export default async function TenantsPage() {
   const supabase = await createClient();
@@ -43,26 +43,7 @@ export default async function TenantsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <ExportCSVButton
-            filename="tenants.csv"
-            headers={["Name", "Phone", "Email", "House", "Property", "Move-in Date", "Rent Due Day", "Rent Amount", "Portal Access"]}
-            rows={(tenants ?? []).map((tenant) => {
-              const house = tenant.houses as unknown as { house_number: string; rent_amount: number; properties: { name: string } | null } | null;
-              const members = (tenant.tenant_members as unknown as Array<{ name: string; phone: string | null; email: string | null; is_primary: boolean }>) ?? [];
-              const primary = members.find((m) => m.is_primary) ?? members[0];
-              return [
-                primary?.name ?? tenant.name,
-                primary?.phone ?? tenant.phone,
-                primary?.email ?? tenant.email ?? "",
-                house ? `Unit ${house.house_number}` : "",
-                house?.properties?.name ?? "",
-                tenant.move_in_date,
-                tenant.rent_due_day,
-                house?.rent_amount ?? "",
-                tenant.can_login ? "Yes" : "No",
-              ];
-            })}
-          />
+          <ExportButton type="tenant" />
           <Link
             href="/dashboard/tenants/history"
             className="flex items-center gap-1.5 h-9 px-3 rounded-xl text-[#94A3B8] hover:text-white hover:bg-white/10 border border-white/10 text-xs font-mono transition-all"

@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { IndianRupee, Plus, CheckCircle2, Clock, AlertCircle, Receipt } from "lucide-react";
-import ExportCSVButton from "@/components/ExportCSVButton";
+import ExportButton from "@/components/ExportButton";
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -46,7 +46,13 @@ export default async function RentPage({
 
   const recordsByHouse = new Map(rentRecords?.map((r) => [r.house_id, r]) ?? []);
 
-  const totalExpected = occupiedHouses?.reduce((s, h) => s + h.rent_amount, 0) ?? 0;
+  const totalExpected = occupiedHouses?.reduce((s, h) => {
+    const record = recordsByHouse.get(h.id) as { electricity_bill?: number; maintenance?: number } | undefined;
+    const baseRent = h.rent_amount;
+    const electricity = record?.electricity_bill ?? 0;
+    const maintenance = record?.maintenance ?? 0;
+    return s + baseRent + electricity + maintenance;
+  }, 0) ?? 0;
   const totalCollected = rentRecords?.reduce((s, r) => s + r.amount_paid, 0) ?? 0;
 
   return (
@@ -59,27 +65,7 @@ export default async function RentPage({
             Track monthly rent collection
           </p>
         </div>
-        <ExportCSVButton
-          filename={`rent-${MONTHS[month - 1].toLowerCase()}-${year}.csv`}
-          headers={["Unit", "Property", "Tenant", "Phone", "Rent Due", "Amount Paid", "Status", "Payment Mode", "Paid On", "Notes"]}
-          rows={(occupiedHouses ?? []).map((house) => {
-            const tenant = (house.tenants as unknown as { id: string; name: string; phone: string; rent_due_day: number }[])?.[0];
-            const record = recordsByHouse.get(house.id);
-            const property = house.properties as unknown as { name: string } | null;
-            return [
-              `Unit ${house.house_number}`,
-              property?.name ?? "",
-              tenant?.name ?? "",
-              tenant?.phone ?? "",
-              house.rent_amount,
-              record?.amount_paid ?? 0,
-              record?.status ?? "pending",
-              record?.payment_mode ?? "",
-              record?.paid_on ?? "",
-              record?.notes ?? "",
-            ];
-          })}
-        />
+        <ExportButton type="rent" />
       </div>
 
       {/* Month/Year selector */}
