@@ -139,7 +139,7 @@ export async function exportTenantData(filters: TenantExportFilters): Promise<{
       rows.push([
         h.name ?? "",
         h.phone ?? "",
-        h.email ?? "",
+        "",
         house ? `Unit ${house.house_number}` : "",
         house?.properties?.name ?? "",
         h.move_in_date ?? "",

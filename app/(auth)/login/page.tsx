@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Image from "next/image";
-import { Mail, Lock, Loader2, UserPlus, LogIn } from "lucide-react";
+import { Mail, Lock, Loader2, UserPlus, LogIn, ArrowLeft } from "lucide-react";
 
-type Mode = "signin" | "signup";
+type Mode = "signin" | "signup" | "forgot";
 
 export default function LoginPage() {
   const supabase = createClient();
@@ -21,6 +21,19 @@ export default function LoginPage() {
     setError("");
     setMessage("");
     setLoading(true);
+
+    if (mode === "forgot") {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/login?mode=reset`,
+      });
+      setLoading(false);
+      if (error) {
+        setError(error.message);
+      } else {
+        setMessage("Password reset link sent! Check your email.");
+      }
+      return;
+    }
 
     if (mode === "signin") {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -85,47 +98,62 @@ export default function LoginPage() {
 
         <div className="bg-[#0F1115] border border-white/10 rounded-2xl p-8 shadow-[0_0_50px_-10px_rgba(247,147,26,0.1)]">
           <div className="flex gap-1 bg-black/40 rounded-xl p-1 mb-6">
-            <button
-              type="button"
-              onClick={() => { setMode("signin"); setError(""); setMessage(""); }}
-              className={`flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg text-xs font-mono tracking-wider uppercase transition-all ${
-                mode === "signin"
-                  ? "bg-gradient-to-r from-[#EA580C] to-[#F7931A] text-white shadow-[0_0_15px_-3px_rgba(234,88,12,0.5)]"
-                  : "text-[#94A3B8] hover:text-white"
-              }`}
-            >
-              <LogIn className="w-3.5 h-3.5" />
-              Sign In
-            </button>
-            <button
-              type="button"
-              onClick={() => { setMode("signup"); setError(""); setMessage(""); }}
-              className={`cursor-pointer flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg text-xs font-mono tracking-wider uppercase transition-all ${
-                mode === "signup"
-                  ? "bg-gradient-to-r from-[#EA580C] to-[#F7931A] text-white shadow-[0_0_15px_-3px_rgba(234,88,12,0.5)]"
-                  : "text-[#94A3B8] hover:text-white"
-              }`}
-            >
-              <UserPlus className="w-3.5 h-3.5" />
-              Sign Up
-            </button>
+            {mode === "forgot" ? (
+              <button
+                type="button"
+                onClick={() => { setMode("signin"); setError(""); setMessage(""); }}
+                className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg text-xs font-mono tracking-wider uppercase transition-all text-[#94A3B8] hover:text-white"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                Back to Sign In
+              </button>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => { setMode("signin"); setError(""); setMessage(""); }}
+                  className={`flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg text-xs font-mono tracking-wider uppercase transition-all ${
+                    mode === "signin"
+                      ? "bg-gradient-to-r from-[#EA580C] to-[#F7931A] text-white shadow-[0_0_15px_-3px_rgba(234,88,12,0.5)]"
+                      : "text-[#94A3B8] hover:text-white"
+                  }`}
+                >
+                  <LogIn className="w-3.5 h-3.5" />
+                  Sign In
+                </button>
+                <button
+                  type="button"
+                  onClick={() => { setMode("signup"); setError(""); setMessage(""); }}
+                  className={`cursor-pointer flex-1 flex items-center justify-center gap-1.5 h-9 rounded-lg text-xs font-mono tracking-wider uppercase transition-all ${
+                    mode === "signup"
+                      ? "bg-gradient-to-r from-[#EA580C] to-[#F7931A] text-white shadow-[0_0_15px_-3px_rgba(234,88,12,0.5)]"
+                      : "text-[#94A3B8] hover:text-white"
+                  }`}
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  Sign Up
+                </button>
+              </>
+            )}
           </div>
 
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-lg bg-[#EA580C]/20 border border-[#EA580C]/50 flex items-center justify-center">
-              {mode === "signin"
-                ? <Mail className="w-5 h-5 text-[#F7931A]" />
-                : <UserPlus className="w-5 h-5 text-[#F7931A]" />
+              {mode === "signup"
+                ? <UserPlus className="w-5 h-5 text-[#F7931A]" />
+                : <Mail className="w-5 h-5 text-[#F7931A]" />
               }
             </div>
             <div>
               <h2 className="font-heading font-semibold text-white text-lg">
-                {mode === "signin" ? "Welcome back" : "Create account"}
+                {mode === "forgot" ? "Reset Password" : mode === "signin" ? "Welcome back" : "Create account"}
               </h2>
               <p className="text-[#94A3B8] text-xs">
-                {mode === "signin"
-                  ? "Sign in with your email and password"
-                  : "Register as the property owner"}
+                {mode === "forgot"
+                  ? "Enter your email to receive a reset link"
+                  : mode === "signin"
+                    ? "Sign in with your email and password"
+                    : "Register as the property owner"}
               </p>
             </div>
           </div>
@@ -149,6 +177,7 @@ export default function LoginPage() {
               </div>
             </div>
 
+            {mode !== "forgot" && (
             <div>
               <label className="block text-xs font-mono tracking-wider uppercase text-[#94A3B8] mb-1.5">
                 Password
@@ -166,7 +195,17 @@ export default function LoginPage() {
                   autoComplete={mode === "signin" ? "current-password" : "new-password"}
                 />
               </div>
+              {mode === "signin" && (
+                <button
+                  type="button"
+                  onClick={() => { setMode("forgot"); setError(""); setMessage(""); }}
+                  className="text-[#F7931A]/70 hover:text-[#F7931A] text-xs font-mono mt-1.5 transition-colors"
+                >
+                  Forgot password?
+                </button>
+              )}
             </div>
+            )}
 
             {error && (
               <p className="text-red-400 text-xs bg-red-400/10 border border-red-400/20 rounded-lg px-3 py-2">
@@ -188,8 +227,8 @@ export default function LoginPage() {
               >
                 {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                 {loading
-                  ? mode === "signin" ? "Signing in..." : "Creating account..."
-                  : mode === "signin" ? "Sign In" : "Create Account"
+                  ? mode === "forgot" ? "Sending..." : mode === "signin" ? "Signing in..." : "Creating account..."
+                  : mode === "forgot" ? "Send Reset Link" : mode === "signin" ? "Sign In" : "Create Account"
                 }
               </button>
             </div>

@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
-import { User, Mail, Phone, CalendarDays } from "lucide-react";
+import { User, Mail, Phone, CalendarDays, Lock } from "lucide-react";
 import ProfileForm from "@/components/profile/ProfileForm";
+import ChangePasswordForm from "@/components/profile/ChangePasswordForm";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -80,6 +81,17 @@ export default async function ProfilePage() {
         <p className="text-[#4A5568] text-xs">
           Email is managed by your auth provider and cannot be changed here.
         </p>
+      </div>
+
+      {/* Change Password */}
+      <div className="bg-[#0F1115] border border-white/10 rounded-2xl p-6">
+        <div className="flex items-center gap-2 mb-6">
+          <Lock className="w-4 h-4 text-[#F7931A]" />
+          <h2 className="font-heading text-lg font-semibold text-white">
+            Change Password
+          </h2>
+        </div>
+        <ChangePasswordForm />
       </div>
     </div>
   );
